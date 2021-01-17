@@ -1,0 +1,4 @@
+#ignore backup
+backup
+db
+__pycache__
