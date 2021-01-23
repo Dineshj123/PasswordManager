@@ -10,27 +10,12 @@ from validation import MasterPwdDailog
 
 class Database():
     def __init__(self):
-        print("initializing database connection")
         self.status=0
         super(Database,self).__init__()
+        self.log = ConnectionDetails.self
         
     def create_credentials_database(self,domain,userId,userName,password):
             
-        table_name = 'domain_credentials'  
-        field1 = 'id' 
-        field1_type = 'INTEGER PRIMARY KEY AUTOINCREMENT'
-        field2 = 'domain' 
-        field2_type = 'VARCHAR(100) NOT NULL'
-        field3 = 'user_name' 
-        field3_type = 'VARCHAR(100) NOT NULL'
-        field4 = 'user_pass' 
-        field4_type = 'VARCHAR(100) NOT NULL'
-        field5 = 'user_id' 
-        field5_type = 'INTEGER NOT NULL'
-        field6 = 'creation_date' 
-        field6_type = "TEXT"
-        field7 = 'version' 
-        field7_type = "INTEGER" 
         self.status=0
         
         try:
@@ -42,23 +27,16 @@ class Database():
             print("database connected")
             c = conn.cursor()
             val = (domain,userId,userName,password,0)
-            print("creating table")
-            c.execute('CREATE TABLE IF NOT EXISTS {tn} ({nf1} {ft1}, {nf2} {ft2}, {nf3} {ft3},{nf4} {ft4},{nf5} {ft5},{nf6} {ft6},{nf7} {ft7})'\
-                    .format(tn=table_name, nf1=field1, ft1=field1_type,nf2=field2, ft2=field2_type,nf3=field3, ft3=field3_type,nf4=field4, ft4=field4_type,
-                            nf5=field5, ft5=field5_type,nf6=field6, ft6=field6_type,nf7=field7, ft7=field7_type))
             print("table created")
             sql = " INSERT INTO domain_credentials(domain,user_id,user_name,user_pass,version,creation_date) VALUES(?,?,?,?,?,datetime('now')) "
             c.execute(sql,val)
-            print("credentials inserted")
+            self.log.addLog("debug","[Database create_credentials_database] ===== sql "+sql)
             self.status = 1
             conn.commit()
-            print("version updated")
+            self.log.addLog("info","[Database create_credentials_database] ===== credentials inserted ")
             conn.close()
-            
-            print("committed and closed")
-        except Error as e:
-            print(e)
-            print("error")
+        except sqlite3.Error as e:
+            self.log.addLog("error","[Database create_credentials_database] =====  "+e)
             self.status = 0
             conn.close()
 
@@ -70,15 +48,16 @@ class Database():
             conn = sqlite3.connect(ConnectionDetails.sqlite_file)
             c = conn.cursor()
             sql= "select version_count + 1 from users where user_id = " + str(ConnectionDetails.loggedInUserId) 
-            print(sql)
+            self.log.addLog("debug","[Database getVersionCount] =====  sql "+sql)
             c.execute(sql)
             vc = c.fetchall()
             conn.close()
             print(vc)
             return vc[0][0]
-        except Error as e:
+        except sqlite3.Error as e:
             print(e)
-            print("error getting version count of userId "+str(userId))
+            self.log.addLog("error","[Database getVersionCount] ===== "+e)
+            self.log.addLog("error","[Database getVersionCount] =====  error while getting version count "+str(userId))
             return -1
 
 class MainBox(QWidget):
@@ -90,11 +69,13 @@ class MainBox(QWidget):
         self.top = 10
         self.width = 640
         self.height = 480
+        print(ConnectionDetails.self)
+        self.log = ConnectionDetails.self
         self.initUI()
     def initUI(self):
+        self.log = ConnectionDetails.self
         self.setWindowTitle(self.title)
         self.setFixedSize(640,800)
-        #self.setGeometry(self.left, self.top, self.width, self.height)
         self.submitStatus = False
         self.createFormGroupBox()
         button = QPushButton('submit', self)
@@ -102,12 +83,12 @@ class MainBox(QWidget):
         mainLayout = QVBoxLayout()
         mainLayout.addWidget(self.formGroupBox)
         mainLayout.addWidget(button)
-        print("entering group")
+        self.log.addLog("debug","[MainBox initUI] ====== opening validator box")
         self.setLayout(mainLayout)
-        print("entering group")
         self.show()
  
     def createFormGroupBox(self):
+        self.log = ConnectionDetails.self
         self.formGroupBox = QGroupBox("Enter Domain UserName Password")
         layout = QFormLayout()
         self.domain = QLineEdit()
@@ -119,75 +100,65 @@ class MainBox(QWidget):
         layout.addRow(QLabel("UserName:"), self.userName)
         layout.addRow(QLabel("Password:"), self.password)
         self.formGroupBox.setLayout(layout)
+        self.log.addLog("debug","[MainBox createFormGroupBox] ====== create form")
         
     def closeEvent(self,event):
         print("preparing to close")
         event.accept()
-        #if(self.submitStatus):
-            #print("exiting show main box")
-            #event.accept()
-        #event.ignore()
-        #self.submit()
 
     def submit(self):
+        self.log = ConnectionDetails.self
         domain = self.domain.text()
         userName = self.userName.text()
         password = self.password.text()
         encryptKey = Key(ConnectionDetails.loggedInPassword).getEncryptedKey()
-        #obj = AES.new(encryptKey, AES.MODE_CFB, encryptKey)
+        self.log.addLog("debug","[MainBox submit] ====== got encryptedKey")
         cipher = encryptKey.encrypt(password.encode('utf8').strip())
-        print(str(cipher))
+        self.log.addLog("debug","[MainBox submit] ====== retrieved cipher")
         self.database = Database()
         self.database.create_credentials_database(domain,ConnectionDetails.loggedInUserId,userName,str(cipher))
+        self.log.addLog("debug","[MainBox submit] ====== credentials inserted for "+str(ConnectionDetails.loggedInUserName))
 
         if (self.database.getStatus() == 1):
-            print("Saved credentials successfully")
+            self.log.addLog("debug","[MainBox submit] ====== Saved credentials successfully")
             self.submitStatus = True
-            #print(self.main)
-            #del self.main
-            #print("deleted")
             self.close()
         else:
-            print("error inserting credentials")
+            self.log.addLog("error","[MainBox submit] ====== error inserting credentials"+str(self.database.getStatus()))
             
 class CreateMainBox(QWidget):
     def __init__(self):
         super(CreateMainBox,self).__init__()
         self.create_master_dialog()
         self.create_main_box()
-        #self.status = False
+        print("self")
+        print(self)
+        self.log = ConnectionDetails.self
+        self.log.addLog("info","[CreateMainBox __init__] ====== inside create domain forms ")
     
     def create_master_dialog(self):
+        self.log = ConnectionDetails.self
         dialog = MasterPwdDailog()
-        print("dialog created")
+        self.log.addLog("debug","[CreateMainBox create_master_dialog] ====== dialog created")
         dialog.exec_()
         self.status = dialog.getStatus()
 
     def create_main_box(self):
-        print("main box inside")
+        self.log = ConnectionDetails.self
+        self.log.addLog("debug","[CreateMainBox create_master_dialog] ====== inside main box")
         print(self.status)
-        '''
-        if(self.status == False):
-            print("no error")
-            self.create_master_dialog()
-        else:
-            close = self.show_main_box()
-            print("close is "+str(close))
-        '''
         while(self.status == 0):
+            self.log.addLog("warning","[CreateMainBox create_master_dialog] ====== wrong root credentials for "+str(ConnectionDetails.loggedInUserName))
             self.create_master_dialog()
         if(self.status!=2):
+            self.log.addLog("info","[CreateMainBox create_master_dialog] ====== correct root credentials for "+str(ConnectionDetails.loggedInUserName))
             close = self.show_main_box()
-            print("close is "+str(close))
         else:
             pass
             
 
     def show_main_box(self):
         self.main = MainBox()
-        #main = self.main
-        #print(main)
-        #self.main.post(main)
         status = self.main.show()
         return 0
     

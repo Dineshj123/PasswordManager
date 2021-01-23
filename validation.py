@@ -10,6 +10,7 @@ from Key import Key
 class MasterPwdDailog(QDialog):
     def __init__(self):
         super(MasterPwdDailog,self).__init__()
+        self.log = ConnectionDetails.self
         self.password = QLineEdit()
         self.password.setEchoMode(QLineEdit.Password)
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
@@ -18,42 +19,41 @@ class MasterPwdDailog(QDialog):
         mainLayout.addWidget(self.password)
         mainLayout.addWidget(buttonBox)
         self.setLayout(mainLayout)
+        self.log.addLog("debug","[MasterPwdDailog __init__] ======  inside init")
         self.exitStatus=0
 
     def closeEvent(self,event):
-        print("accepting event")
         if(self.exitStatus == 0):
             self.exitStatus = 2
         event.accept()
 
     def accept(self):
-        print("accepted for userId ")
+        self.log = ConnectionDetails.self
+        self.log.addLog("debug","[MasterPwdDailog accept] ======  accepted "+str(ConnectionDetails.loggedInUserId))
         password = self.password.text()
         encryptKey = Key(password).getEncryptedKey()
-        print(encryptKey)
-        #obj = AES.new(encryptKey, AES.MODE_CFB, encryptKey)
+        self.log.addLog("debug","[MasterPwdDailog accept] ======  got encryptKey ")
         cipher = encryptKey.encrypt(password.encode('utf8').strip())
-        print(cipher)
         try:
             if(ConnectionDetails.loggedInPassword):
-                print(cipher)
+                self.log.addLog("debug","[MasterPwdDailog accept] ======  password found ")
                 if (str(cipher) != str(ConnectionDetails.loggedInPassword)):
-                    print("No such password exists")
+                    self.log.addLog("warning","[MasterPwdDailog accept] ======  No such password found in database ")
                     self.exitStatus = 0
                     self.close()
                 else:
-                    print("Proceeding...")
+                    self.log.addLog("debug","[MasterPwdDailog accept] ======  accepted! proceeding.. ")
                     self.exitStatus = 1
                     self.close()
             else:
-                print("No such userId / password")
+                self.log.addLog("warning","[MasterPwdDailog accept] ======  No such userId/password")
                 self.exitStatus = 0
                 self.close()
-        except Error as e:
-            print(e)
-            print("error connecting to database")
+        except sqlite3.Error as e:
+            self.log.addLog("error","[MasterPwdDailog accept] ======  "+e)
             self.close()
             
     def getStatus(self):
-        print("returning status "+str(self.exitStatus))
+        self.log = ConnectionDetails.self
+        self.log.addLog("debug","[MasterPwdDailog getStatus] ======  exitStatus "+str(self.exitStatus))
         return self.exitStatus

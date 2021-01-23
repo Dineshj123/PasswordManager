@@ -1,4 +1,5 @@
 #ignore backup
 backup
 db
+logs
 __pycache__

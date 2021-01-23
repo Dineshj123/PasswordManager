@@ -1,8 +1,10 @@
-import sys
-
 
 class ConnectionDetails():
-    sqlite_file = 'db/pwd_manager.sqlite'
+    self = None
+    title = "Password Manager"
+    sqlite_file = "db/pwd_manager.sqlite"
+    connectionPath= sqlite_file.split("/")[0]
+    connectionFile = sqlite_file.split("/")[1]
     loggedInUserId = ""
     loggedInUserName = ""
     loggedInPassword=""
