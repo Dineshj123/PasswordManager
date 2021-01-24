@@ -55,6 +55,7 @@ class Database():
             cur.execute(sql,(self.curr_id,ConnectionDetails.loggedInUserId,))
             self.log.addLog("info","[Database delete_credentials] ====== deleting id "+str(id)+" for "+ConnectionDetails.loggedInUserName)
             conn.commit()
+            ConnectionDetails.backup = True
             conn.close()
             self.status = 1
             return 1

@@ -1,6 +1,7 @@
 
 class ConnectionDetails():
     self = None
+    backup = False
     title = "Password Manager"
     sqlite_file = "db/pwd_manager.sqlite"
     connectionPath= sqlite_file.split("/")[0]

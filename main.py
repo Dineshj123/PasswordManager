@@ -13,6 +13,9 @@ from Database import InitializeDatabase
 from Key import Key
 from pathlib import Path
 from Logs import Logs
+from backupDB_scheduler import Scheduler
+import threading,time
+
 
 class Database():
     def __init__(self):
@@ -372,6 +375,30 @@ class App(QWidget):
             self.log.addLog("debug","[show_login_box] ===== exited trying to open")
             userName = new_user_dialog.getUserName()
             self.show_main_box()
+    
+def backUpRun():
+    log = None
+    conn = sqlite3.connect(ConnectionDetails.sqlite_file)
+    try:
+        while(True):
+            if(ConnectionDetails.backup):
+                print("inside backup")
+                log = ConnectionDetails.self
+                ConnectionDetails.backup = False
+                log.addLog("debug","[atexit backUpRun] running backup")
+                Scheduler().run()
+                log.addLog("debug","[atexit backUpRun] backup completed")
+                c = conn.cursor()
+                sql = " INSERT INTO backup (creation_date) VALUES(datetime('now')) "
+                log.addLog("debug","[atexit backUpRun] sql "+sql)
+                c.execute(sql)
+                conn.commit()
+                log.addLog("debug","[atexit backUpRun] inserted backup")
+                conn.close()
+            time.sleep(2)
+    except sqlite3.Error as e:
+        log.addLog("error","[atexit backUpRun] "+e)
+        conn.close()
 
 def initializeDB():
     obj = Logs()
@@ -381,6 +408,8 @@ def initializeDB():
     InitializeDatabase.create_user_database(self)
     obj.addLog("debug","creating domain credentials")
     InitializeDatabase.create_domain_credentails_database(self)
+    obj.addLog("debug","creating backup db")
+    InitializeDatabase.create_backup_database(self)
 
 def setUpDB():
     mode = "x"
@@ -399,6 +428,9 @@ def setUpDB():
         
 if __name__ == '__main__':
     #setting db path
+    d = threading.Thread(name='backupdaemon', target=backUpRun)
+    d.setDaemon(True)
+    d.start()
     setUpDB()
     app = QApplication(sys.argv)
     ex = App()

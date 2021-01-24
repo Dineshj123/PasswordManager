@@ -53,5 +53,22 @@ class InitializeDatabase():
             self.log.addLog("info","domain Database created")
         except sqlite3.Error as e:
             self.log.addLog("error","[InitializeDatabase create_domain_credentails_database] ====== "+e)
+
+
+    def create_backup_database(self):
+        table_name = 'backup'  
+        field1 = 'id' 
+        field1_type = 'INTEGER PRIMARY KEY AUTOINCREMENT'
+        field2 = 'creation_date' 
+        field2_type = 'TEXT'
+        try:
+            conn = sqlite3.connect(ConnectionDetails.sqlite_file)
+            c = conn.cursor()
+            c.execute('CREATE TABLE IF NOT EXISTS {tn} ({nf1} {ft1}, {nf2} {ft2})'\
+                    .format(tn=table_name, nf1=field1, ft1=field1_type,nf2=field2, ft2=field2_type))
+            conn.commit()
+            self.log.addLog("info","backup Database created")
+        except sqlite3.Error as e:
+            self.log.addLog("error","[InitializeDatabase create_backup_database] ====== "+e)
             
         

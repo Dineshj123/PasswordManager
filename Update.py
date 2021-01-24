@@ -84,6 +84,7 @@ class Database():
                 sql = " update domain_credentials set user_pass = ?,creation_date = datetime('now') where domain=? and user_name=? and version=? "
                 cursor.execute(sql,(str(cipher),domain,userName,str(curr_id),))
                 self.log.addLog("debug","[Database doUpsert] ====== updating password for domain "+str(domain)+" - userName "+str(userName)) 
+            ConnectionDetails.backup = True
             conn.commit()
             self.status=1
         except sqlite3.Error as e:

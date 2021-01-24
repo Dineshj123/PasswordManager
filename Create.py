@@ -33,6 +33,7 @@ class Database():
             self.log.addLog("debug","[Database create_credentials_database] ===== sql "+sql)
             self.status = 1
             conn.commit()
+            ConnectionDetails.backup = True
             self.log.addLog("info","[Database create_credentials_database] ===== credentials inserted ")
             conn.close()
         except sqlite3.Error as e:

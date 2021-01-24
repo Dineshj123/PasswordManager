@@ -52,7 +52,5 @@ class Scheduler():
         except Exception as e:
             self.log.addLog("error","[Scheduler run]"+e)
 
-if __name__ == '__main__':
-    Scheduler().run()
             
         
