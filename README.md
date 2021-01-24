@@ -7,7 +7,7 @@ Features Available:
 3. Auto Backup of DB program
 
 Download instructions:
-1. git clone <git-repo.git>
+1. git clone <git-repo.git> --branch master --single-branch .
 2. cd PasswordManager
    install python and pip manually in windows
    In Linux:
