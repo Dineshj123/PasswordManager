@@ -4,9 +4,9 @@ from PyQt5.QtWidgets import (QApplication, QWidget,QComboBox, QDialog,
         QLabel, QLineEdit, QMenu, QMenuBar, QPushButton, QSpinBox, QTextEdit,
         QVBoxLayout,QInputDialog,QMainWindow)
 import sqlite3
-from configDetails import ConnectionDetails
-from Key import Key
-from validation import MasterPwdDailog
+from Config.configDetails import ConnectionDetails
+from Key.Key import Key
+from Scripts.validation import MasterPwdDailog
 
 class Database():
     def __init__(self):

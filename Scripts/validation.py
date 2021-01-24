@@ -3,8 +3,8 @@ from PyQt5.QtWidgets import (QApplication, QWidget,QComboBox, QDialog,
         QDialogButtonBox, QFormLayout, QGridLayout, QGroupBox, QHBoxLayout,
         QLabel, QLineEdit, QMenu, QMenuBar, QPushButton, QSpinBox, QTextEdit,
         QVBoxLayout)
-from configDetails import ConnectionDetails
-from Key import Key
+from Config.configDetails import ConnectionDetails
+from Key.Key import Key
 
 
 class MasterPwdDailog(QDialog):

@@ -1,7 +1,7 @@
 import os,sqlite3
 from datetime import date
 from datetime import datetime
-from configDetails import ConnectionDetails
+from Config.configDetails import ConnectionDetails
 
 class InitializeDatabase():
     def __init__(self):
