@@ -26,7 +26,10 @@ class Database():
             conn = sqlite3.connect(ConnectionDetails.sqlite_file)
             c = conn.cursor()
             val = (userName,password)
-            if(not(self.checkUserName(userName))):
+            print(self.checkUserName(userName)[1])
+            print(self.checkUserName(userName)[1]!=-1)
+            if(self.checkUserName(userName)[1]!=-1):
+                print("user Already exists exception")
                 self.status = 2
             else:                
                 sql = ''' INSERT INTO users(user_name,user_pass)
