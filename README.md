@@ -9,14 +9,15 @@ Features Available:
 Download instructions:
 1. git clone <git-repo.git> --branch master --single-branch .
 2. cd PasswordManager
-   install python and pip manually in windows
-   In Linux:
-      - sudo apt-get update
-      - sudo apt-get install -y python3
-      - sudo apt-get install -y python3-pip
-      - sudo apt-get install -y python3-pyqt5
-      - pip3 install PyQt5
-      - pip3 install pycrypto
-      - pip3 install db-sqlite3
-      - pip3 install pyperclip
+   Install python and pip manually in windows.<br>
+   Linux: <br>
+      sudo apt-get update <br>
+      sudo apt-get install -y python3  <br>
+      sudo apt-get install -y python3-pip  <br>
+      sudo apt-get install -y python3-pyqt5 <br>
+   Python Dependencies:
+      pip3 install PyQt5  <br>
+      pip3 install pycrypto  <br>
+      pip3 install db-sqlite3 <br>
+      pip3 install pyperclip <br>
 3. python3 main.py
