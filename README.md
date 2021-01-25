@@ -21,3 +21,6 @@ Download instructions:
       pip3 install db-sqlite3 <br>
       pip3 install pyperclip <br>
 3. python3 main.py
+<br><br>
+# The Docker Way..
+https://hub.docker.com/r/djdock/pwdmanager/tags?page=1&ordering=last_updated
