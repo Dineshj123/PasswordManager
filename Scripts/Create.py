@@ -76,7 +76,7 @@ class MainBox(QWidget):
     def initUI(self):
         self.log = ConnectionDetails.self
         self.setWindowTitle(self.title)
-        self.setFixedSize(640,800)
+        self.setFixedSize(500,500)
         self.submitStatus = False
         self.createFormGroupBox()
         button = QPushButton('submit', self)
@@ -160,6 +160,5 @@ class CreateMainBox(QWidget):
 
     def show_main_box(self):
         self.main = MainBox()
-        status = self.main.show()
-        return 0
+        self.main.show()
     

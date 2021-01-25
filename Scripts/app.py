@@ -1,4 +1,4 @@
-import sys,os,sqlite3
+import sys,os,sqlite3,time
 from PyQt5.QtWidgets import (QApplication, QWidget,QComboBox, QDialog,
         QDialogButtonBox, QFormLayout, QGridLayout, QGroupBox, QHBoxLayout,
         QLabel, QLineEdit, QMenu, QMenuBar, QPushButton, QSpinBox, QTextEdit,
@@ -26,7 +26,7 @@ class Database():
             conn = sqlite3.connect(ConnectionDetails.sqlite_file)
             c = conn.cursor()
             val = (userName,password)
-            if(self.checkUserName(userName) is not None):
+            if(not(self.checkUserName(userName))):
                 self.status = 2
             else:                
                 sql = ''' INSERT INTO users(user_name,user_pass)
@@ -67,7 +67,7 @@ class Database():
             if(userPassword):
                 print("checked userName "+str(userPassword[0][0]))
                 return userPassword[0]
-            return None
+            return ["",-1]
         except sqlite3.Error as e:
             print("error checking userName")
             self.log.addLog("error","[checkUserName] ==== error in checkUserName")
@@ -275,8 +275,8 @@ class NewUserDialogBox(QDialog):
                 print("exiting")
                 self.close()
             else:
-                self.log.addLog("error","[NewUserDialogBox acceptRegister] ===== UserName/password is incorrect")
-                self.error.setText("UserName/password is incorrect")
+                self.log.addLog("error","[NewUserDialogBox acceptRegister] ===== UserName/password not Valid. If new please register")
+                self.error.setText("UserName/password not Valid. If new please register")
                 self.exitStatus = False
  
 class App(QWidget):
@@ -288,10 +288,12 @@ class App(QWidget):
         self.top = 100
         self.width = 640
         self.height = 480
+        print(self)
         self.log = ConnectionDetails.self
         self.initUI()
  
     def initUI(self):
+        self.log = ConnectionDetails.self
         print(self)
         self.setWindowTitle(self.title)
         self.setFixedSize(640,800)
@@ -362,6 +364,8 @@ class App(QWidget):
         if(self.status == True):
             self.log.addLog("warning","[App show_delete_acc_dialog_box] ===== exiting")
             sys.exit(0)
+                        
+    
     
     def show_login_box(self):
         new_user_dialog = NewUserDialogBox()

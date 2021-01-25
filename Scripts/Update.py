@@ -131,7 +131,7 @@ class MainBox(QWidget):
     def initUI(self):
         self.log = ConnectionDetails.self
         self.setWindowTitle(self.title)
-        self.setFixedSize(840,950)
+        self.setFixedSize(600,500)
         #self.setGeometry(self.left, self.top, self.width, self.height)
         self.database = Database()
         self.rows = self.database.get_credentials()

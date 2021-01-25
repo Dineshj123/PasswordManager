@@ -45,7 +45,7 @@ def initializeDB():
     InitializeDatabase.create_backup_database(self)
 
 def setUpDB():
-    mode = "x"
+    mode = "a"
     path = os.path.join(os.path.abspath(os.getcwd()),ConnectionDetails.connectionPath)
     print(path)
     print("setting up DB")
@@ -67,3 +67,4 @@ if __name__ == '__main__':
     setUpDB()
     app = QApplication(sys.argv)
     ex = App()
+    app.exec_()

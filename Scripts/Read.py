@@ -7,6 +7,7 @@ import sqlite3
 from Config.configDetails import ConnectionDetails
 from Key.Key import Key
 from Scripts.validation import MasterPwdDailog
+import pyperclip
 
 class Database():
     def __init__(self):
@@ -48,8 +49,8 @@ class MainBox(QWidget):
         self.title = 'Read Password'
         self.left = 10
         self.top = 10
-        self.width = 640
-        self.height = 480
+        self.width = 500
+        self.height = 600
         self.log = ConnectionDetails.self
         self.initUI()
     def initUI(self):
@@ -92,8 +93,7 @@ class MainBox(QWidget):
         for curr in self.tableWidget.selectedItems():
             if (curr.column() == int(4)):
                 self.log.addLog("debug","[MainBox copy] ====== copying password to clipboard")
-                command = 'echo | set /p nul=' + self.rows[curr.row()][3].strip() + '| clip'
-                os.system(command)
+                pyperclip.copy(self.rows[curr.row()][3].strip())
             else:
                 self.log.addLog("debug","[MainBox copy] ====== pressed outside password column")
                 pass
