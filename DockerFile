@@ -2,15 +2,23 @@ FROM ubuntu:20.04
 
 RUN apt-get update
 RUN apt-get install -y python3-pip
-RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata
-RUN apt-get install -y libxkbcommon-x11-0
-RUN apt-get install -y -q libgtk2.0-dev
-RUN apt-get install -y -q libgl1-mesa-dev
-RUN apt-get install --reinstall libxcb-xinerama0
-RUN pip3 install PyQt5
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV DISPLAY = host.docker.internal:0.0
+ENV export QT_DEBUG_PLUGINS=1
+#adding below env variable as a workaround for pyperclip keyError
+ENV XDG_SESSION_TYPE=wayland
+
+# Install Python 3, PyQt5
+RUN pip3 install --user PyQt5
+RUN apt-get update && apt-get install -y python3-pyqt5
 RUN pip3 install pycrypto
 RUN pip3 install db-sqlite3
+RUN pip3 install pyperclip
 
 COPY . /app
 
-CMD python3 /app/main.py
+WORKDIR "/app"
+RUN ls -lrt
+
+CMD python3 main.py
