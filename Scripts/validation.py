@@ -11,11 +11,13 @@ class MasterPwdDailog(QDialog):
     def __init__(self):
         super(MasterPwdDailog,self).__init__()
         self.log = ConnectionDetails.self
+        self.passwordName = QLabel("Enter Root Password:")
         self.password = QLineEdit()
         self.password.setEchoMode(QLineEdit.Password)
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
         buttonBox.accepted.connect(self.accept)
         mainLayout = QVBoxLayout()
+        mainLayout.addWidget(self.passwordName)
         mainLayout.addWidget(self.password)
         mainLayout.addWidget(buttonBox)
         self.setLayout(mainLayout)
@@ -31,27 +33,31 @@ class MasterPwdDailog(QDialog):
         self.log = ConnectionDetails.self
         self.log.addLog("debug","[MasterPwdDailog accept] ======  accepted "+str(ConnectionDetails.loggedInUserId))
         password = self.password.text()
-        encryptKey = Key(password).getEncryptedKey()
-        self.log.addLog("debug","[MasterPwdDailog accept] ======  got encryptKey ")
-        cipher = encryptKey.encrypt(password.encode('utf8').strip())
-        try:
-            if(ConnectionDetails.loggedInPassword):
-                self.log.addLog("debug","[MasterPwdDailog accept] ======  password found ")
-                if (str(cipher) != str(ConnectionDetails.loggedInPassword)):
-                    self.log.addLog("warning","[MasterPwdDailog accept] ======  No such password found in database ")
+        if (password == '' or password == ''):
+            self.log.addLog("error","[MasterPwdDailog accept] ===== Root password can not be blank")
+            #self.error.setText("Error! Root password can not be blank")
+        else:
+            encryptKey = Key(password).getEncryptedKey()
+            self.log.addLog("debug","[MasterPwdDailog accept] ======  got encryptKey ")
+            cipher = encryptKey.encrypt(password.encode('utf8').strip())
+            try:
+                if(ConnectionDetails.loggedInPassword):
+                    self.log.addLog("debug","[MasterPwdDailog accept] ======  password found ")
+                    if (str(cipher) != str(ConnectionDetails.loggedInPassword)):
+                        self.log.addLog("warning","[MasterPwdDailog accept] ======  No such password found in database ")
+                        self.exitStatus = 0
+                        self.close()
+                    else:
+                        self.log.addLog("debug","[MasterPwdDailog accept] ======  accepted! proceeding.. ")
+                        self.exitStatus = 1
+                        self.close()
+                else:
+                    self.log.addLog("warning","[MasterPwdDailog accept] ======  No such userId/password")
                     self.exitStatus = 0
                     self.close()
-                else:
-                    self.log.addLog("debug","[MasterPwdDailog accept] ======  accepted! proceeding.. ")
-                    self.exitStatus = 1
-                    self.close()
-            else:
-                self.log.addLog("warning","[MasterPwdDailog accept] ======  No such userId/password")
-                self.exitStatus = 0
+            except sqlite3.Error as e:
+                self.log.addLog("error","[MasterPwdDailog accept] ======  "+e)
                 self.close()
-        except sqlite3.Error as e:
-            self.log.addLog("error","[MasterPwdDailog accept] ======  "+e)
-            self.close()
             
     def getStatus(self):
         self.log = ConnectionDetails.self
